@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %} Home{% endblock title %}
+{% block body %}
+
+<form class="form-inline">
+  <div class="form-group">
+    {{form.country(class="form-control")}}
+    </div>
+    <button type="submit" class="btn btn-info">Submit</button>
+ </form>
+ <div id="result"></div>
+
+ 
+<style>
+  .form-control {
+      display: block;
+      width:300px;
+      padding: .375rem .75rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #495057;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: .25rem;
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  }
+  .btn {padding: .375rem .75rem; margin-top:10px;}
+  </style>
+
+  
+  <script>
+    $(document).ready(function(){
+     var countries=[];
+     function loadCountries(){
+      $.getJSON('/countries', function(data, status, xhr){
+       for (var i = 0; i < data.length; i++ ) {
+        countries.push(data[i].name);
+       }
+     });
+     };
+     loadCountries();
+     
+     $('#country').autocomplete({
+      source: countries, 
+     }); 
+     
+     $('form').on('submit', function(e){
+      $.ajax({
+       data: {
+        country:$('#country').val()
+       },
+       type: 'POST',
+       url : '/process'
+      })
+      .done(function(data){ 
+       if (data.error){
+        $('#result').text(data.error).show();
+       }
+       else {
+        $('#result').html(data.country).show()
+       }
+      })
+      e.preventDefault();
+     });
+    }); 
+    </script>
+
+{% endblock body %}
